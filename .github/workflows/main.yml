@@ -161,7 +161,6 @@ jobs:
           
           # Liste des dépendances requises
           $dependencies = @(
-              'flask',
               'requests',
               'python-dotenv'
           )
@@ -232,7 +231,6 @@ jobs:
           }
           
           $dependencies = @(
-              'flask',
               'requests',
               'python-dotenv'
           )
