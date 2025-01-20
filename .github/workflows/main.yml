@@ -21,7 +21,7 @@ env:
   SERVER_PORT: 5001
   REQUIRED_FILES: |
     access.log
-    accueil.html
+    acceuil.html
     expose_py.py
     middleware.py
     pays.html
@@ -85,16 +85,16 @@ jobs:
       - name: Verify navigation buttons
         run: |
           echo "Vérification des boutons de navigation..."
-          # Vérifie si le fichier accueil.html existe
-          if (-not (Test-Path accueil.html)) {
-            Write-Error "Le fichier accueil.html est introuvable au chemin accueil.html."
+          # Vérifie si le fichier acceuil.html existe
+          if (-not (Test-Path "acceuil.html")) {
+            Write-Error "Le fichier acceuil.html est introuvable au chemin acceuil.html."
             exit 1
           }
           # Chargement du contenu et vérification des liens
-          $accueilContent = Get-Content -Path accueil.html -Raw
-          if (-not ($accueilContent -match 'href="/meteo"' -and 
-            $accueilContent -match 'href="/pays"')) {
-            Write-Error "accueil.html : Liens de navigation manquants pour /meteo ou /pays"
+          $acceuilContent = Get-Content -Path "acceuil.html" -Raw
+          if (-not ($acceuilContent -match 'href="/meteo"' -and 
+            $acceuilContent -match 'href="/pays"')) {
+            Write-Error "acceuil.html : Liens de navigation manquants pour /meteo ou /pays"
             exit 1
           }
           # Vérification des autres fichiers pour le bouton retour
