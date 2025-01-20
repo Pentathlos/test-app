@@ -129,79 +129,93 @@ jobs:
         shell: pwsh
 
   verify-server-dependencies:
-    needs: verify-structure
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  needs: verify-structure
+  runs-on: windows-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ inputs.python-version }}
-          cache: 'pip'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'pip'
 
-      - name: Check and Install Dependencies
-        run: |
-          echo "Vérification et installation des dépendances..."
-          
-          # Fonction pour vérifier et installer une dépendance
-          function Install-IfMissing {
-              param($PackageName)
-              
-              # Vérifie si le package est installé
-              $installed = pip list | findstr $PackageName
-              if (-not $installed) {
-                  echo "Installation de $PackageName..."
-                  pip install $PackageName
-              } else {
-                  echo "$PackageName est déjà installé"
-              }
-          }
-          
-          # Liste des dépendances requises
-          $dependencies = @(
-              'requests',
-              'python-dotenv'
-          )
-          
-          # Vérifie et installe chaque dépendance
-          foreach ($dep in $dependencies) {
-              Install-IfMissing -PackageName $dep
-          }
-          
-          # Vérifie que toutes les dépendances sont bien installées
-          foreach ($dep in $dependencies) {
-              if (-not (pip list | findstr $dep)) {
-                  Write-Error "Échec de l'installation de $dep"
-                  exit 1
-              }
-          }
-        shell: pwsh
-
-      - name: Create test environment file
-        run: |
-          echo "API_KEY=test_key" > property.env
-        shell: pwsh
-
-      - name: Start server
-        run: |
-          Start-Process python -ArgumentList "expose_py.py" -NoNewWindow
-          Start-Sleep -Seconds 5
-        shell: pwsh
-
-      - name: Test server endpoints
-        run: |
-          $endpoints = @('/ville', '/pays', '/')
-          foreach ($endpoint in $endpoints) {
-            $response = Invoke-WebRequest -Uri "http://localhost:${{ env.SERVER_PORT }}$endpoint" -ErrorAction Stop
-            if ($response.StatusCode -ne 200) {
-              Write-Error "Endpoint $endpoint returned status code $($response.StatusCode)"
-              exit 1
+    - name: Check and Install Dependencies
+      run: |
+        echo "Vérification et installation des dépendances..."
+        
+        function Install-IfMissing {
+            param($PackageName)
+            
+            $installed = pip list | findstr $PackageName
+            if (-not $installed) {
+                echo "Installation de $PackageName..."
+                pip install $PackageName
+            } else {
+                echo "$PackageName est déjà installé"
             }
-            Write-Host "Endpoint $endpoint is responding correctly"
-          }
-        shell: pwsh
+        }
+        
+        $dependencies = @('requests', 'python-dotenv')
+        foreach ($dep in $dependencies) {
+            Install-IfMissing -PackageName $dep
+        }
+        
+        foreach ($dep in $dependencies) {
+            if (-not (pip list | findstr $dep)) {
+                Write-Error "Échec de l'installation de $dep"
+                exit 1
+            }
+        }
+      shell: pwsh
+
+    - name: Create test environment file
+      run: |
+        echo "API_KEY=test_key" > property.env
+      shell: pwsh
+
+    - name: Start server
+      run: |
+        Start-Process python -ArgumentList "expose_py.py" -NoNewWindow
+        $retries = 10
+        $waitTime = 5
+        $success = $false
+        for ($i = 0; $i -lt $retries; $i++) {
+            try {
+                $response = Invoke-WebRequest -Uri "http://localhost:${{ env.SERVER_PORT }}/" -ErrorAction Stop
+                if ($response.StatusCode -eq 200) {
+                    $success = $true
+                    Write-Host "Server is ready."
+                    break
+                }
+            } catch {
+                Write-Host "Waiting for the server to be ready..."
+                Start-Sleep -Seconds $waitTime
+            }
+        }
+        if (-not $success) {
+            Write-Error "Server did not become ready in time."
+            exit 1
+      shell: pwsh
+
+    - name: Test server endpoints
+      run: |
+        $endpoints = @('/ville', '/pays', '/')
+        foreach ($endpoint in $endpoints) {
+            try {
+                $response = Invoke-WebRequest -Uri "http://localhost:${{ env.SERVER_PORT }}$endpoint" -ErrorAction Stop
+                if ($response.StatusCode -ne 200) {
+                    Write-Error "Endpoint $endpoint returned status code $($response.StatusCode)"
+                    exit 1
+                }
+                Write-Host "Endpoint $endpoint is responding correctly"
+            } catch {
+                Write-Error "Failed to reach $endpoint"
+                exit 1
+            }
+        }
+      shell: pwsh
 
   test-middleware:
     needs: verify-server-dependencies
