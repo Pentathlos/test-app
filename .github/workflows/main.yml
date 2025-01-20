@@ -41,12 +41,12 @@ jobs:
           echo "Vérification de la présence des fichiers requis..."
           $requiredFiles = @(
             "access.log",
-            "accueil.html",
+            "acceuil.html",
             "expose_py.py",
             "middleware.py",
             "pays.html",
             "property.env",
-            "reponse_mete.html",
+            "reponse_meteo.html",
             "reponse_pays.html",
             "requirements.txt",
             "ville.html"
