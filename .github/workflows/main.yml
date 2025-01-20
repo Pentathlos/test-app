@@ -87,7 +87,7 @@ jobs:
           echo "Vérification des boutons de navigation..."
           # Vérifie si le fichier accueil.html existe
           if (-not (Test-Path accueil.html)) {
-            Write-Error "Le fichier accueil.html est introuvable au chemin ./accueil.html."
+            Write-Error "Le fichier accueil.html est introuvable au chemin accueil.html."
             exit 1
           }
           # Chargement du contenu et vérification des liens
@@ -104,7 +104,7 @@ jobs:
               Write-Error "$file est introuvable."
               exit 1
             }
-            $content = Get-Content -Path ./$file -Raw
+            $content = Get-Content -Path $file -Raw
             if (-not ($content -match 'href="/".*Retour')) {
               Write-Error "$file : Bouton retour manquant"
               exit 1
