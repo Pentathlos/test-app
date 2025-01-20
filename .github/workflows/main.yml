@@ -39,8 +39,20 @@ jobs:
       - name: Verify required files
         run: |
           echo "Vérification de la présence des fichiers requis..."
+          $requiredFiles = @(
+            "access.log",
+            "accueil.html",
+            "expose_py.py",
+            "middleware.py",
+            "pays.html",
+            "property.env",
+            "reponse_mete.html",
+            "reponse_pays.html",
+            "requirements.txt",
+            "ville.html"
+          )
           $missingFiles = @()
-          foreach ($file in '${{ env.REQUIRED_FILES }}' -split '\n' | Where-Object { $_ -match '\S' }) {
+          foreach ($file in $requiredFiles) {
             if (-not (Test-Path $file)) {
               $missingFiles += $file
             }
@@ -48,6 +60,8 @@ jobs:
           if ($missingFiles.Count -gt 0) {
             Write-Error "Fichiers manquants : $($missingFiles -join ', ')"
             exit 1
+          } else {
+            Write-Host "Tous les fichiers requis sont présents."
           }
         shell: pwsh
 
