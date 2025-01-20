@@ -54,7 +54,7 @@ jobs:
           $htmlFiles = @('ville.html', 'pays.html', 'acceuil.html', 'reponse_meteo.html')
           $htmlPatterns = @{
             'ville.html' = @('form.*action="/submit".*method="POST"', 'href="/".*Retour');
-            'pays.html' = 'form.*action="/soumettre".*method="POST"';
+            'pays.html' = @('form.*action="/soumettre".*method="POST"', 'href="/".*Retour');
             'acceuil.html' = 'href="/meteo".*href="/pays"';
             'reponse_meteo.html' = 'href="/".*Retour';
             'pays.html' = 'href="/".*Retour'
