@@ -83,39 +83,34 @@ jobs:
         shell: pwsh
 
       - name: Verify navigation buttons
-  run: |
-    echo "Vérification des boutons de navigation..."
-    
-    # Vérifie si le fichier accueil.html existe
-    if (-not (Test-Path ./accueil.html)) {
-      Write-Error "Le fichier accueil.html est introuvable au chemin ./accueil.html."
-      exit 1
-    }
-
-    # Chargement du contenu et vérification des liens
-    $accueilContent = Get-Content -Path ./accueil.html -Raw
-    if (-not ($accueilContent -match 'href="/meteo"' -and 
-              $accueilContent -match 'href="/pays"')) {
-      Write-Error "accueil.html : Liens de navigation manquants pour /meteo ou /pays"
-      exit 1
-    }
-
-    # Vérification des autres fichiers pour le bouton retour
-    foreach ($file in @('ville.html', 'pays.html', 'reponse_meteo.html')) {
-      # Vérifie si le fichier existe
-      if (-not (Test-Path ./$file)) {
-        Write-Error "$file est introuvable."
-        exit 1
-      }
-      
-      $content = Get-Content -Path ./$file -Raw
-      if (-not ($content -match 'href="/".*Retour')) {
-        Write-Error "$file : Bouton retour manquant"
-        exit 1
-      }
-    }
-  shell: pwsh
-
+        run: |
+          echo "Vérification des boutons de navigation..."
+          # Vérifie si le fichier accueil.html existe
+          if (-not (Test-Path ./accueil.html)) {
+            Write-Error "Le fichier accueil.html est introuvable au chemin ./accueil.html."
+            exit 1
+          }
+          # Chargement du contenu et vérification des liens
+          $accueilContent = Get-Content -Path ./accueil.html -Raw
+          if (-not ($accueilContent -match 'href="/meteo"' -and 
+            $accueilContent -match 'href="/pays"')) {
+            Write-Error "accueil.html : Liens de navigation manquants pour /meteo ou /pays"
+            exit 1
+          }
+          # Vérification des autres fichiers pour le bouton retour
+          foreach ($file in @('ville.html', 'pays.html', 'reponse_meteo.html')) {
+          # Vérifie si le fichier existe
+            if (-not (Test-Path ./$file)) {
+              Write-Error "$file est introuvable."
+              exit 1
+            }
+            $content = Get-Content -Path ./$file -Raw
+            if (-not ($content -match 'href="/".*Retour')) {
+              Write-Error "$file : Bouton retour manquant"
+              exit 1
+            }
+          }
+          shell: pwsh
 
       - name: Verify response structure
         run: |
