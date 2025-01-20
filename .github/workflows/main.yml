@@ -110,7 +110,7 @@ jobs:
               exit 1
             }
           }
-          shell: pwsh
+        shell: pwsh
 
       - name: Verify response structure
         run: |
