@@ -250,7 +250,7 @@ jobs:
           retention-days: 5
 
   final-validation:
-    needs: [verify-structure, verify-server-and-dependencies, test-middleware]
+    needs: [verify-structure, verify-server-dependencies, test-middleware]
     runs-on: windows-latest
     outputs:
       status: ${{ steps.validation.outputs.status }}
