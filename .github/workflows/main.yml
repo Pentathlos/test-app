@@ -197,6 +197,7 @@ jobs:
           if (-not $success) {
             Write-Error "Server did not become ready in time."
             exit 1
+          }
         shell: pwsh
 
       - name: Test server endpoints
